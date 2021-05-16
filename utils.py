@@ -5,6 +5,7 @@ import random
 import argparse
 import pickle
 import numpy as np
+import gzip
 import scipy.sparse as sp
 from sklearn.feature_extraction.text import TfidfTransformer
 import torch
@@ -29,8 +30,8 @@ TMP_DIR = {
 }
 
 LABEL_FILE = {
-    BEAUTY: (DATA_DIR[BEAUTY] + '/Beauty_train_label.pkl',
-             DATA_DIR[BEAUTY] + '/Beauty_test_label.pkl'),
+    BEAUTY: (DATA_DIR[BEAUTY] + '/train_labels.txt.gz',
+             DATA_DIR[BEAUTY] + '/test_labels.txt.gz'),
     CELL: (DATA_DIR[CELL] + '/Cellphones_Accessories_train_label.pkl',
            DATA_DIR[CELL] + '/Cellphones_Accessories_test_label.pkl'),
     CLOTH: (DATA_DIR[CLOTH] + '/Clothing_train_label.pkl',
@@ -143,8 +144,13 @@ def load_labels(dataset, mode='train'):
         label_file = LABEL_FILE[dataset][1]
     else:
         raise Exception('mode should be one of {train, test}.')
-    user_products = pickle.load(open(label_file, 'rb'))
-    return user_products
+    # user_products = pickle.load(open(label_file, 'rb'))
+    labels = {}  # key: user_id, value: list of item IDs.
+    with gzip.open(label_file, 'rb') as f:
+        for line in f:
+            cells = line.decode().strip().split('\t')
+            labels[int(cells[0])] = [int(x) for x in cells[1:]]
+    return labels
 
 
 def load_path_count(dataset):
