@@ -66,12 +66,11 @@ def parse_args():
     parser.add_argument('--use_dropout', type=boolean, default=True, help='use dropout or not.')
     parser.add_argument('--rank_weight', type=float, default=10.0, help='weighting factor for ranking loss.')
     parser.add_argument('--topk_candidates', type=int, default=20, help='weighting factor for ranking loss.')
-    # parser.add_argument('--is_train', type=boolean, default=False, help='True to train model.')
-    parser.add_argument('--do_infer', type=boolean, default=False, help='whether to infer paths after training.')
-    parser.add_argument('--do_execute', type=boolean, default=False, help='whether to execute neural programs.')
 
     # Hyperparameters for execute neural programs (inference).
     parser.add_argument('--sample_size', type=int, default=15, help='sample size for model.')
+    parser.add_argument('--do_infer', type=boolean, default=False, help='whether to infer paths after training.')
+    parser.add_argument('--do_execute', type=boolean, default=False, help='whether to execute neural programs.')
 
     args = parser.parse_args()
 

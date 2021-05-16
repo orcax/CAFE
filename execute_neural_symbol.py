@@ -354,7 +354,7 @@ def run_program(args):
 
 
 def main():
-    args = parse_args()
+    args = utils.parse_args()
 
     if args.do_infer:
         infer_paths(args)
