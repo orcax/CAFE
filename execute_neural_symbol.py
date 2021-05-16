@@ -19,7 +19,8 @@ import torch.optim as optim
 from my_knowledge_graph import *
 from data_utils import KGMask
 from symbolic_model import SymbolicNetwork, create_symbolic_model
-from utils import *
+# from utils import *
+import utils
 
 logger = None
 
@@ -38,10 +39,10 @@ def set_logger(logname):
 
 
 def infer_paths(args):
-    kg = load_kg(args.dataset)
+    kg = utils.load_kg(args.dataset)
     model = create_symbolic_model(args, kg, train=False)
 
-    train_labels = load_labels(args.dataset, 'train')
+    train_labels = utils.load_labels(args.dataset, 'train')
     train_uids = list(train_labels.keys())
     kg_mask = KGMask(kg)
 
@@ -325,12 +326,12 @@ def create_heuristic_program(metapaths, raw_paths_with_scores, prior_count, samp
 
 
 def run_program(args):
-    kg = load_kg(args.dataset)
+    kg = utils.load_kg(args.dataset)
     kg_mask = KGMask(kg)
 
-    train_labels = load_labels(args.dataset, 'train')
-    test_labels = load_labels(args.dataset, 'test')
-    path_counts = load_path_count(args.dataset)  # Training path freq
+    train_labels = utils.load_labels(args.dataset, 'train')
+    test_labels = utils.load_labels(args.dataset, 'test')
+    path_counts = utils.load_path_count(args.dataset)  # Training path freq
     with open(args.infer_path_data, 'rb') as f:
         raw_paths = pickle.load(f)  # Test path with scores
 
