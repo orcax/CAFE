@@ -1,14 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
-import sys
-import os
-import argparse
-import pickle
-import time
 import numpy as np
 from tqdm import tqdm
-import torch
-import json
 
 from my_knowledge_graph import *
 import utils
@@ -51,9 +44,9 @@ def compute_top100_items(dataset):
 
 
 def estimate_path_count(args):
-    kg = load_kg(args.dataset)
+    kg = utils.load_kg(args.dataset)
     num_mp = len(kg.metapaths)
-    train_labels = load_labels(args.dataset, 'train')
+    train_labels = utils.load_labels(args.dataset, 'train')
     counts = {}
     pbar = tqdm(total=len(train_labels))
     for uid in train_labels:
@@ -64,56 +57,34 @@ def estimate_path_count(args):
                 counts[uid][mpid] += cnt
         counts[uid] = counts[uid] / len(train_labels[uid])
         pbar.update(1)
-        # print(counts[uid])
-    save_path_count(args.dataset, counts)
-
-
-def split_user_metapaths(args, ratio=0.7):
-    kg = load_kg(args.dataset)
-    num_mps = len(kg.metapaths)
-    train_labels = load_labels(args.dataset, 'train')
-    user_train_mps, user_test_mps = {}, {}
-    num_train = int(ratio * num_mps)
-    for uid in train_labels:
-        rand_mpids = np.random.permutation(num_mps)
-        user_train_mps[uid] = rand_mpids[:num_train].tolist()
-        user_test_mps[uid] = rand_mpids[num_train:].tolist()
-    save_mp_split(args.dataset, user_train_mps, ratio, 'train')
-    save_mp_split(args.dataset, user_test_mps, ratio, 'test')
+    utils.save_path_count(args.dataset, counts)
 
 
 def main(args):
     # Run following code to extract embeddings from state dict.
     # ========== BEGIN ========== #
-    # embeds = load_kg_embedding(args.dataset)
-    # utils.save_embed(args.dataset, embeds)
+    embeds = load_kg_embedding(args.dataset)
+    utils.save_embed(args.dataset, embeds)
     # =========== END =========== #
 
     # Run following codes to generate MyKnowledgeGraph object.
     # ========== BEGIN ========== #
-    # kg = MyKnowledgeGraph(args.dataset)
-    # utils.save_kg(args.dataset, kg)
+    kg = MyKnowledgeGraph(args.dataset)
+    utils.save_kg(args.dataset, kg)
     # =========== END =========== #
 
     # Run following codes to generate top100 items for each user.
     # ========== BEGIN ========== #
-    # best100 = compute_top100_items(args.dataset)
-    # utils.save_user_products(args.dataset, best100, 'pos')
+    best100 = compute_top100_items(args.dataset)
+    utils.save_user_products(args.dataset, best100, 'pos')
     # =========== END =========== #
 
     # Run following codes to estimate paths count.
     # ========== BEGIN ========== #
-    # estimate_path_count(args)
-    # =========== END =========== #
-
-    # Run following codes to split user metapaths.
-    # ========== BEGIN ========== #
-    # split_user_metapaths(args)
+    estimate_path_count(args)
     # =========== END =========== #
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', type=str, default='beauty', help='One of {clothing, cell, beauty, cd}')
-    args = parser.parse_args()
+    args = utils.parse_args()
     main(args)

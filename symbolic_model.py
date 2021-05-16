@@ -1,7 +1,5 @@
 from __future__ import absolute_import, division, print_function
 
-import os
-import argparse
 import numpy as np
 import torch
 from torch import nn
@@ -268,12 +266,10 @@ class SymbolicNetwork(nn.Module):
                 return []
             result_paths = tmp_paths
 
-        # TODO: Sample at most <topk_paths> paths?
-
         return result_paths
 
 
-def create_symbolic_model(args, kg, train=True):
+def create_symbolic_model(args, kg, train=True, pretrain_embeds=None):
     """Create neural symbolic model based on KG.
 
     Args:
@@ -294,7 +290,7 @@ def create_symbolic_model(args, kg, train=True):
             "entity_tail": kg.relation_info[rel][1],
         }
 
-    pretrain_embeds = utils.load_embed(args.dataset) if train else None
+    # pretrain_embeds = utils.load_embed(args.dataset) if train else None
     entity_embed_model = EntityEmbeddingModel(entity_info, args.embed_size, init_embed=pretrain_embeds)
     model = SymbolicNetwork(relation_info, entity_embed_model, args.deep_module, args.use_dropout, args.device)
     model = model.to(args.device)
@@ -310,27 +306,3 @@ def create_symbolic_model(args, kg, train=True):
         model.eval()
 
     return model
-
-
-# def main():
-#     boolean = lambda x: (str(x).lower() == 'true')
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument('--dataset', type=str, default='beauty', help='dataset name.')
-#     parser.add_argument('--gpu', type=int, default=2, help='gpu device.')
-#     parser.add_argument('--embed_size', type=int, default=100, help='knowledge embedding size.')
-#     parser.add_argument('--deep_module', type=boolean, default=True, help='Use deep module or not')
-#     parser.add_argument('--use_dropout', type=boolean, default=True, help='use dropout or not.')
-#     args = parser.parse_args()
-
-#     os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
-#     os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
-#     args.device = torch.device('cuda:0') if torch.cuda.is_available() else 'cpu'
-
-#     symbolic_model = create_symbolic_model(args, train=True)
-#     for name, param in symbolic_model.named_parameters():
-#         if param.requires_grad:
-#             print(name)
-
-
-# if __name__ == '__main__':
-#     main()
